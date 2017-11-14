@@ -169,7 +169,8 @@ def feature_analysis(data_dict, feature,analysis='max'):
 ### features_list is a list of strings, each of which is a feature name.
 ### The first feature must be "poi".
 ### baseline features_list = ['poi','salary'] # You will need to use more features
-features_list = ['poi','salary', 'total_stock_value']
+#features_list = ['poi','salary', 'total_stock_value']
+features_list = ['poi','total_payments', 'expenses','shared_receipt_with_poi','from_poi_to_this_person']
 
                              
 ### Load the dictionary containing the dataset
@@ -182,6 +183,8 @@ with open("final_project_dataset.pkl", "r") as data_file:
 ## First observations
 ## How many persons:
 
+print '\n########### STEP 1: Feature selection ############\n'
+    
 total_count=len(data_dict)
 print '\nNumber of persons on the sample: {}'.format(total_count)
     
@@ -238,15 +241,24 @@ for k, v in sorted(dict_ratio.items(), key=itemgetter(1), reverse=True):
 ### Task 2: Remove outliers
 
 ##%%%%%%%%%%%%%%% MY CODE %%%%%%%%%%%%%%##
-print '\nNumber of persons before cleaning: {}'.format(len(data_dict))
-print '\nMax salary: {}'.format(feature_analysis(data_dict,'salary',analysis='max'))
+
+print '\n\n########### STEP 2: Remove outlies ############\n'
+print '## Number of persons before cleaning: {}\n'.format(len(data_dict))
+
+for i in data_dict.values()[0]:
+    print 'Maximum value for {}: {}'.format(i,feature_analysis(data_dict,i,analysis='max'))
+
+## I remove TOTAL from list of person
 data_cleaning(data_dict,['TOTAL'])
-print '\nNumber of persons after cleaning: {}'.format(len(data_dict))
+print '\n## Number of persons after cleaning: {}\n'.format(len(data_dict))
 
-print '\nMax salary: {}'.format(feature_analysis(data_dict,'salary',analysis='max'))
+
+for i in data_dict.values()[0]:
+    print 'Maximum value for {}: {}'.format(i,feature_analysis(data_dict,i,analysis='max'))
+
+
 print '\nFeatures for max Salary:{}'.format(data_dict[feature_analysis(data_dict,'salary',analysis='max')[0]])
-
-    
+   
 
 ##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##
 

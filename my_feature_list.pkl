@@ -1,8 +1,12 @@
 (lp0
 S'poi'
 p1
-aS'salary'
+aS'total_payments'
 p2
-aS'total_stock_value'
+aS'expenses'
 p3
+aS'shared_receipt_with_poi'
+p4
+aS'from_poi_to_this_person'
+p5
 a.
