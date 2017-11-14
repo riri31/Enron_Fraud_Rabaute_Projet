@@ -170,7 +170,7 @@ def feature_analysis(data_dict, feature,analysis='max'):
 ### The first feature must be "poi".
 ### baseline features_list = ['poi','salary'] # You will need to use more features
 #features_list = ['poi','salary', 'total_stock_value']
-features_list = ['poi','total_payments', 'expenses','shared_receipt_with_poi','from_poi_to_this_person']
+features_list = ['poi','exercised_stock_options','total_stock_value', 'total_payments','from_poi_to_this_person','shared_receipt_with_poi','from_this_person_to_poi']
 
                              
 ### Load the dictionary containing the dataset
@@ -258,7 +258,7 @@ for i in data_dict.values()[0]:
 
 
 print '\nFeatures for max Salary:{}'.format(data_dict[feature_analysis(data_dict,'salary',analysis='max')[0]])
-   
+
 
 ##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##
 
