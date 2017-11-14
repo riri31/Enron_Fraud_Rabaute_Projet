@@ -330,9 +330,34 @@ Draw(labels, features,  mark_poi=False, name="scatter_1.png", f1_name=features_l
 ### you'll need to use Pipelines. For more info:
 ### http://scikit-learn.org/stable/modules/pipeline.html
 
+
+
 # Provided to give you a starting point. Try a variety of classifiers.
+
+##%%%%%%%%%%%%%%% MY CODE %%%%%%%%%%%%%%##
+
 from sklearn.naive_bayes import GaussianNB
-clf = GaussianNB()
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
+
+from sklearn.pipeline import make_pipeline
+from sklearn.decomposition import PCA
+from sklearn.svm import SVC
+
+
+#clf = make_pipeline(PCA(n_components=2), KNeighborsClassifier(n_neighbors=3))
+#&clf.fit(features_test, labels_test)
+#pred_test = unscaled_clf.predict(X_test)
+
+
+
+#clf = DecisionTreeClassifier(random_state=0)
+#clf = GaussianNB()
+#clf=KNeighborsClassifier(n_neighbors=3)
+#clf = SVC()
+
+
+##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##
 
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall 
 ### using our testing script. Check the tester.py script in the final project
@@ -345,6 +370,16 @@ clf = GaussianNB()
 from sklearn.cross_validation import train_test_split
 features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
+
+from sklearn import svm, datasets
+from sklearn.model_selection import GridSearchCV
+
+##%%%%%%%%%%%%%%% MY CODE %%%%%%%%%%%%%%##
+parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
+svc = svm.SVC()
+clf = GridSearchCV(svc, parameters)
+clf.fit(features_train,labels_train)
+##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##
 
 ### Task 6: Dump your classifier, dataset, and features_list so anyone can
 ### check your results. You do not need to change anything below, but make sure
