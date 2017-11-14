@@ -20,6 +20,7 @@ from tester import dump_classifier_and_data
 
 def data_cleaning(data_dict,list_items_to_remove):
     for i in list_items_to_remove:
+        print '---> Delete: {}'.format(i)
         del data_dict[i]
 
 ## function: draw
@@ -159,8 +160,46 @@ def feature_analysis(data_dict, feature,analysis='max'):
  
     return k[v.index(max(v))],max(v)
     
+## function: Remove_NaN_Person 
+## content: Remove person with a specified feature == NaN
+## return: nothing
 
+def Remove_NaN_Person(data_dict, feature, number_nan=6):
+    list_delete=[]
+    
+    for i in data_dict.keys():
+        to_delete=0
+        #print i
+        for f in feature:
+            if data_dict[i][f] == 'NaN':
+                #print f,'ok'
+                to_delete+=1
+             #else:
+                #print f,'nok'
+        if to_delete>=number_nan:
+            #print 'delete',i
+            list_delete.append(i)
+            
+    data_cleaning(data_dict,list_delete)
 
+def Count_NaN(data_dict, feature):
+    list_person={}
+       
+    for i in data_dict.keys():
+        nan_count=0
+        for f in feature:
+             if data_dict[i][f] == 'NaN':
+                 nan_count+=1
+        list_person[i]=nan_count
+    return list_person
+
+def List_NaN(data_dict, feature):
+    list_feature=[]
+    for f in feature:
+        if data_dict[f] == 'NaN':
+            list_feature.append(f)
+    return list_feature
+        
 
 ##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##
 
@@ -206,8 +245,7 @@ for k, v in sorted(feature_NaN(data_dict).items(), key=itemgetter(1), reverse=Tr
 
 
 ## Correlation between NaN and POI status
-#import pprint
-#pprint.pprint(feature_NaN_poi(data_dict, NaN=True),indent=2,depth=2)
+
 
 Draw_bar(feature_NaN_poi(data_dict, NaN=True),title='POI status with NaN feature')
 Draw_bar(feature_NaN_poi(data_dict, NaN=False),title='POI status with no NaN feature')
@@ -228,14 +266,6 @@ for k, v in sorted(dict_ratio.items(), key=itemgetter(1), reverse=True):
     print '({}) {}:\tpoi={}% (n={})'.format(j,k,v,dict_non_nan[k]['poi']+dict_non_nan[k]['not_poi'])
     j+=1
 
-
-#print '{}:\n\tpoi={}% (n={})'.format(i,ratio,poi+not_poi)
-
-#for i in data_dict:
-#    if data_dict[i]['director_fees']!='NaN':
-#        print data_dict[i]['director_fees']
-#        print data_dict[i]['poi']
-    
 ##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##
 
 ### Task 2: Remove outliers
@@ -250,6 +280,10 @@ for i in data_dict.values()[0]:
 
 ## I remove TOTAL from list of person
 data_cleaning(data_dict,['TOTAL'])
+
+## I remove person with NaN in selected features
+Remove_NaN_Person(data_dict,features_list[1::],number_nan=len(features_list[1::]))
+
 print '\n## Number of persons after cleaning: {}\n'.format(len(data_dict))
 
 
@@ -264,10 +298,21 @@ print '\nFeatures for max Salary:{}'.format(data_dict[feature_analysis(data_dict
 
 ### Task 3: Create new feature(s)
 ### Store to my_dataset for easy export below.
+dict_nan=Count_NaN(data_dict, features_list[1::])
+
+print '\nNumber of NaN per person:'
+j=1
+for k, v in sorted(dict_nan.items(), key=itemgetter(1), reverse=True):
+    print '({}) {}:\tNAN={}/{}:{}'.format(j,k,v,len(features_list[1::]),List_NaN(data_dict[k], features_list))
+    j+=1
+
 my_dataset = data_dict
 
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
+
+
+
 labels, features = targetFeatureSplit(data)
 
 ##%%%%%%%%%%%%%%% MY CODE %%%%%%%%%%%%%%##
