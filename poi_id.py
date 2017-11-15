@@ -6,200 +6,12 @@ sys.path.append("../tools/")
 
 from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
+import poi_id_functions
 
 
 
 ##%%%%%%%%%%%%%%% MY CODE %%%%%%%%%%%%%%##
 
-
-
-## function : data cleaning
-## content: remove item from dictionary
-## return: data dictionary with removed items
-
-
-def data_cleaning(data_dict,list_items_to_remove):
-    for i in list_items_to_remove:
-        print '---> Delete: {}'.format(i)
-        del data_dict[i]
-
-## function: draw
-## content: draw a scatter plot with 2 features for axis and a different plot color for poi or not poi
-## return: nothing
-
-from matplotlib import pyplot as plt
-import numpy as np
-
-def Draw(pred, features, mark_poi=False, name="image.png", f1_name="feature 1", f2_name="feature 2"):
-    """ some plotting code designed to help you visualize your clusters """
-
-
-    fig = plt.figure()
-    ax = fig.add_subplot(1,1,1)
-    
-    ### plot each cluster with a different color--add more colors for
-    ### drawing more than five clusters
-    colors = ["b", "c"]
-    for i,j in enumerate(pred):
-        ax.scatter(int(features[i][0]),int(features[i][1]), color = colors[int(pred[i])])     
-
-    point_1=plt.scatter(0,0, color = colors[0]) 
-    point_2=plt.scatter(0,0, color = colors[1]) 
-    
-    ax.legend([point_1,point_2], ["not poi", "poi"])
-    
-    plt.legend(loc=4)
-    plt.grid(True)
-    
-    plt.xlabel(f1_name)
-    plt.ylabel(f2_name)
-    plt.savefig(name)
-    plt.show()
-
-## function: feature_NaN
-## content: count the number of NaN value for each value a data dictionnary
-## return: a dictionary with the feature as a key and the number of NaN as value
-
-def Draw_bar(dict_input,name='bar_1.png',title='bar_chart'): 
-    
-    poi=[]
-    not_poi=[]
-    x_label=dict_input.keys()
-    
-    for i in dict_input:
-        poi.append(dict_input[i]['poi'])
-        not_poi.append(dict_input[i]['not_poi'])
-    
-    N = len(dict_input)
-    
-    ind = np.arange(4*N,step=4)  # the x locations for the groups
-#    print 'ind:{}♥'.format(ind)
-    width = 1.5       # the width of the bars
-
-    fig, ax = plt.subplots()
-    rects1 = ax.bar(ind, poi, width, color='r')
-       
-      
-    rects2 = ax.bar(ind + width, not_poi, width, color='y')
-
-    # add some text for labels, title and axes ticks
-    ax.set_ylabel('Count')
-    ax.set_title(title)
-    ax.set_xticks(ind + width / 2)
-    ax.set_xticklabels(x_label,rotation=90)#('G1', 'G2', 'G3', 'G4', 'G5'))
-    
-
-    ax.legend((rects1[0], rects2[0]), ('poi', 'not_poi'))
-
-    
-    def autolabel(rects):
-        """
-        Attach a text label above each bar displaying its height
-        """
-        for rect in rects:
-            height = rect.get_height()
-            ax.text(rect.get_x() + rect.get_width()/2., 0.95*height,'%d' % int(height),ha='center', va='bottom')
-
-    autolabel(rects1)
-    autolabel(rects2)
-    plt.savefig(name)
-    plt.show()
-
-def feature_NaN(data_dict):
-    dict_NaN={}
-
-    for i in data_dict.keys():
-        for j in data_dict[i]:
-            if data_dict[i][j]=='NaN':
-                if j in dict_NaN.keys():
-                    dict_NaN[j]+=1
-                else:
-                    dict_NaN[j]=1
-    return dict_NaN
-
-## function: POI_NaN
-## content: count the number of NaN value for each value a data dictionnary
-## return: a dictionary with the feature as a key and the number of NaN as value
-
-def feature_NaN_poi(data_dict, NaN=True, poi=True):
-    dict_NaN_poi={}
-
-    for i in data_dict.keys():
-        for j in data_dict[i]:
-            if (data_dict[i][j]=='NaN' and NaN) or (data_dict[i][j]!='NaN' and not NaN):
-                if j in dict_NaN_poi.keys():
-                    if data_dict[i]['poi']==True:
-                                dict_NaN_poi[j]['poi']+=1
-                    else:
-                        dict_NaN_poi[j]['not_poi']+=1
-                else:
-                    dict_NaN_poi[j]={}
-                    if data_dict[i]['poi']==True:
-                        dict_NaN_poi[j]['poi']=1
-                        dict_NaN_poi[j]['not_poi']=0
-                        
-                    else:
-                        dict_NaN_poi[j]['poi']=0
-                        dict_NaN_poi[j]['not_poi']=1
-    return dict_NaN_poi
-
-
-
-## function: feature_analysis
-## content: analyse one feature of one dictionary in order to find min, max or NaN Value
-## return: a list of dictionary with min/max or NaN names + value
-
-def feature_analysis(data_dict, feature,analysis='max'):
-    dict_feature={}
-    for i in data_dict.keys():
-        if data_dict[i][feature] not in ['NaN','None','TOTAL'] :
-            dict_feature[i]=data_dict[i][feature]
-    
-    v=list(dict_feature.values())
-    k=list(dict_feature.keys())
- 
-    return k[v.index(max(v))],max(v)
-    
-## function: Remove_NaN_Person 
-## content: Remove person with a specified feature == NaN
-## return: nothing
-
-def Remove_NaN_Person(data_dict, feature, number_nan=6):
-    list_delete=[]
-    
-    for i in data_dict.keys():
-        to_delete=0
-        #print i
-        for f in feature:
-            if data_dict[i][f] == 'NaN':
-                #print f,'ok'
-                to_delete+=1
-             #else:
-                #print f,'nok'
-        if to_delete>=number_nan:
-            #print 'delete',i
-            list_delete.append(i)
-            
-    data_cleaning(data_dict,list_delete)
-
-def Count_NaN(data_dict, feature):
-    list_person={}
-       
-    for i in data_dict.keys():
-        nan_count=0
-        for f in feature:
-             if data_dict[i][f] == 'NaN':
-                 nan_count+=1
-        list_person[i]=nan_count
-    return list_person
-
-def List_NaN(data_dict, feature):
-    list_feature=[]
-    for f in feature:
-        if data_dict[f] == 'NaN':
-            list_feature.append(f)
-    return list_feature
-        
 
 ##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##
 
@@ -210,6 +22,8 @@ def List_NaN(data_dict, feature):
 ### baseline features_list = ['poi','salary'] # You will need to use more features
 #features_list = ['poi','salary', 'total_stock_value']
 features_list = ['poi','exercised_stock_options','total_stock_value', 'total_payments','from_poi_to_this_person','shared_receipt_with_poi','from_this_person_to_poi']
+removed_features_list=['loan_advances','deferred_income','long_term_incentive','deferral_payments','restricted_stock_deferred','director_fees']
+#features_list+=removed_features_list
 
                              
 ### Load the dictionary containing the dataset
@@ -278,10 +92,16 @@ print '## Number of persons before cleaning: {}\n'.format(len(data_dict))
 for i in data_dict.values()[0]:
     print 'Maximum value for {}: {}'.format(i,feature_analysis(data_dict,i,analysis='max'))
 
-## I remove TOTAL from list of person
+for i in data_dict.values()[0]:
+    print 'Min value for {}: {}'.format(i,feature_analysis(data_dict,i,analysis='min'))
+
+## I remove TOTAL from list of person as error
 data_cleaning(data_dict,['TOTAL'])
 
-## I remove person with NaN in selected features
+## I remove 'BHATNAGAR SANJAY','DERRICK JR. JAMES V','BELFER ROBERT','RICE KENNETH D'  from list of person as negative value -> cancelled as not effective
+#data_cleaning(data_dict,['BHATNAGAR SANJAY','DERRICK JR. JAMES V','BELFER ROBERT','RICE KENNETH D'])
+
+## I remove person with NaN in all selected features
 Remove_NaN_Person(data_dict,features_list[1::],number_nan=len(features_list[1::]))
 
 print '\n## Number of persons after cleaning: {}\n'.format(len(data_dict))
@@ -290,14 +110,13 @@ print '\n## Number of persons after cleaning: {}\n'.format(len(data_dict))
 for i in data_dict.values()[0]:
     print 'Maximum value for {}: {}'.format(i,feature_analysis(data_dict,i,analysis='max'))
 
+for i in data_dict.values()[0]:
+    print 'Min value for {}: {}'.format(i,feature_analysis(data_dict,i,analysis='min'))
+
 
 print '\nFeatures for max Salary:{}'.format(data_dict[feature_analysis(data_dict,'salary',analysis='max')[0]])
 
 
-##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##
-
-### Task 3: Create new feature(s)
-### Store to my_dataset for easy export below.
 dict_nan=Count_NaN(data_dict, features_list[1::])
 
 print '\nNumber of NaN per person:'
@@ -306,7 +125,39 @@ for k, v in sorted(dict_nan.items(), key=itemgetter(1), reverse=True):
     print '({}) {}:\tNAN={}/{}:{}'.format(j,k,v,len(features_list[1::]),List_NaN(data_dict[k], features_list))
     j+=1
 
+##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##
+
+### Task 3: Create new feature(s)
+### Store to my_dataset for easy export below.
+
+
 my_dataset = data_dict
+
+##%%%%%%%%%%%%%%% MY CODE %%%%%%%%%%%%%%##
+
+## add ratio exercised stock options / total payments
+
+my_dataset=Add_ratio(data_dict,'ratio_exer_stock_total','exercised_stock_options','total_payments',operator='/')
+
+## add ratio from poi to this person / total email received
+
+my_dataset=Add_ratio(data_dict,'ratio_from_poi_email_received','from_poi_to_this_person','to_messages',operator='/')
+
+## add ratio from this person to poi/ total email sent
+my_dataset=Add_ratio(data_dict,'ratio_to_poi_email_sent','from_this_person_to_poi','from_messages',operator='/')
+
+## add ratio exercised stock options / total stock
+my_dataset=Add_ratio(data_dict,'ratio_exer_stock_total_stock','exercised_stock_options','total_stock_value',operator='/')
+
+#print my_dataset
+features_list.append('ratio_to_poi_email_sent')
+features_list.append('ratio_from_poi_email_received')
+features_list.append('ratio_exer_stock_total')
+features_list.append('ratio_exer_stock_total_stock')
+
+print features_list
+
+##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##
 
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
@@ -315,8 +166,65 @@ data = featureFormat(my_dataset, features_list, sort_keys = True)
 
 labels, features = targetFeatureSplit(data)
 
+######### My code #################
+
+
+from sklearn.preprocessing import MinMaxScaler
+
+
+## scale all features
+scaler = MinMaxScaler()
+scaler.fit(features)
+features=scaler.transform(features)
+
+## Select best features
+from sklearn.feature_selection import SelectKBest
+selector= SelectKBest(chi2, k='all')
+features = selector.fit_transform(features, labels)
+Scores_features={}
+j=0
+for i in features_list[1::]:
+    Scores_features[i]=selector.scores_[j]
+    j+=1
+
+print '\nScores for features:'
+j=1
+for k, v in sorted(Scores_features.items(), key=itemgetter(1), reverse=True):
+    print '({}) {} {}'.format(j,k,v)
+    j+=1
+
+
+#from sklearn.feature_selection import chi2
+#from sklearn.feature_selection import f_classif
+
+#import math
+
+#features = np.asarray(features)
+#print 'Feature dimensions: {}'.format(features.shape)
+
+
+#print 'New feature dimensions: {}'.format(features.shape)
+
+#features = features.tolist()
+#### TODO
+
 ##%%%%%%%%%%%%%%% MY CODE %%%%%%%%%%%%%%##
-Draw(labels, features,  mark_poi=False, name="scatter_1.png", f1_name=features_list[1], f2_name=features_list[2])
+j=1
+print '\nfeatures list:\n'
+for f in features_list :
+    print '({}) {}'.format(j,f)
+    j+=1
+Draw(labels, features, features_list=features_list,  mark_poi=False, name="scatter_1.png", f1_name=features_list[1], f2_name=features_list[2])
+Draw(labels, features, features_list=features_list,  mark_poi=False, name="scatter_1.png", f1_name=features_list[2], f2_name=features_list[3])
+Draw(labels, features, features_list=features_list,  mark_poi=False, name="scatter_1.png", f1_name=features_list[4], f2_name=features_list[6])
+Draw(labels, features, features_list=features_list,  mark_poi=False, name="scatter_1.png", f1_name=features_list[8], f2_name=features_list[7])
+Draw(labels, features, features_list=features_list,  mark_poi=False, name="scatter_1.png", f1_name=features_list[10], f2_name=features_list[9])
+
+#for i in my_dataset:
+#    print i
+#    print my_dataset[i]['ratio_from_poi_email_received']
+#    print my_dataset[i]['ratio_to_poi_email_sent']
+
 #print type(features[0])
 #print type(int(features[0][0]))
 #print type(labels)
@@ -353,7 +261,7 @@ from sklearn.svm import SVC
 
 #clf = DecisionTreeClassifier(random_state=0)
 #clf = GaussianNB()
-#clf=KNeighborsClassifier(n_neighbors=3)
+clf=KNeighborsClassifier(n_neighbors=3)
 #clf = SVC()
 
 
@@ -371,14 +279,21 @@ from sklearn.cross_validation import train_test_split
 features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
 
+
+
+##%%%%%%%%%%%%%%% MY CODE %%%%%%%%%%%%%%##
 from sklearn import svm, datasets
 from sklearn.model_selection import GridSearchCV
 
-##%%%%%%%%%%%%%%% MY CODE %%%%%%%%%%%%%%##
-parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
-svc = svm.SVC()
-clf = GridSearchCV(svc, parameters)
-clf.fit(features_train,labels_train)
+
+
+#parameters ={'n_neighbors':[4,5,6]}
+#knc = KNeighborsClassifier()
+#clf = GridSearchCV(knc,parameters)
+#clf.fit(features_train,labels_train)
+#print sorted(clf.cv_results_.keys())
+
+
 ##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##
 
 ### Task 6: Dump your classifier, dataset, and features_list so anyone can
