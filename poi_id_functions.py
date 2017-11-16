@@ -95,6 +95,10 @@ def Draw_bar(dict_input,name='bar_1.png',title='bar_chart'):
     plt.savefig(name)
     plt.show()
 
+## function: feature_NaN
+## content: count number of NaN per feature
+## return: dictionnary with number of NaN per feature
+
 def feature_NaN(data_dict):
     dict_NaN={}
 
@@ -175,6 +179,10 @@ def Remove_NaN_Person(data_dict, feature, number_nan=6):
             
     data_cleaning(data_dict,list_delete)
 
+## function: Count_NaN
+## content: count number of NaN per user
+## return: dictionnary with number of NaN per person
+
 def Count_NaN(data_dict, feature):
     list_person={}
        
@@ -186,13 +194,21 @@ def Count_NaN(data_dict, feature):
         list_person[i]=nan_count
     return list_person
 
+## function: List_NaN
+## content: List the features with NaN per user
+## return: list of features with NaN per useer
+
 def List_NaN(data_dict, feature):
     list_feature=[]
     for f in feature:
         if data_dict[f] == 'NaN':
             list_feature.append(f)
     return list_feature
-        
+ 
+## function: Add_ratio
+## content: add a new feature that is a ration between two existing features
+## return: new data dictionnary + new feature list
+       
 def Add_ratio(features_list,data_dict,new_feature_name,feature_1,feature_2,operator='/'):
     
     new_data_dict=dict(data_dict)
@@ -208,6 +224,10 @@ def Add_ratio(features_list,data_dict,new_feature_name,feature_1,feature_2,opera
             data_dict[i][new_feature_name]='NaN'
     return new_data_dict, features_list
 
+## function: print_rank
+## content: print scores of features in descending order
+## return: nothing
+    
 def print_rank(Scores_features,title,with_value=False):
     print title
     j=1
@@ -218,17 +238,16 @@ def print_rank(Scores_features,title,with_value=False):
             print '({}) {}'.format(j,k)
         j+=1
 
-
-def tester(clf,my_dataset, feature_list):
-    
-    test_classifier(clf, my_dataset, feature_list)
+## function: test_classifier
+## content: call test classifier + print content
+## return: nothing
 
 from time import time
 
 def classifier_test(clf, my_dataset, feature_list,label):
     print '\n%%%%%%%%%%%%%%%%% '+label+' %%%%%%%%%%%%%%%%%'
     t0 = time()
-    tester(clf,my_dataset,feature_list)
+    test_classifier(clf,my_dataset,feature_list)
     print 'computation time: {} secs'.format(round(time()-t0,6))
     print '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n'
     

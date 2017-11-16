@@ -7,14 +7,12 @@ sys.path.append("../tools/")
 
 from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
-from poi_id_functions import data_cleaning, Draw, Draw_bar, feature_NaN, feature_NaN_poi, feature_analysis, Remove_NaN_Person, Count_NaN, List_NaN, Add_ratio, print_rank, tester, classifier_test
+from poi_id_functions import data_cleaning, Draw, Draw_bar, feature_NaN, feature_NaN_poi, feature_analysis, Remove_NaN_Person, Count_NaN, List_NaN, Add_ratio, print_rank, classifier_test
 
-from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
-from sklearn.pipeline import make_pipeline
-from sklearn.decomposition import PCA
+
 from sklearn.svm import SVC, LinearSVC
 
 from sklearn.preprocessing import MinMaxScaler
@@ -24,8 +22,9 @@ from sklearn.feature_selection import chi2
 
 from sklearn.cross_validation import train_test_split
 
-from sklearn import svm, datasets
 from sklearn.model_selection import GridSearchCV
+
+from operator import itemgetter
 
 
 ############ Code generate verbose print or not ############
