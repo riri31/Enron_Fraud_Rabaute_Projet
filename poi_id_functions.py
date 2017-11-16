@@ -1,4 +1,5 @@
-
+import pickle
+from operator import itemgetter
 
 ## function : data cleaning
 ## content: remove item from dictionary
@@ -191,17 +192,45 @@ def List_NaN(data_dict, feature):
             list_feature.append(f)
     return list_feature
         
-def Add_ratio(data_dict,new_feature_name,feature_1,feature_2,operator='/'):
+def Add_ratio(features_list,data_dict,new_feature_name,feature_1,feature_2,operator='/'):
     
-    new_data_dict=data_dict
+    new_data_dict=dict(data_dict)
+    features_list.append(new_feature_name)
+    print '---> Add: {}'.format(new_feature_name)
     
     for i in data_dict:
         if (data_dict[i][feature_1]!='NaN') and (data_dict[i][feature_2]!='NaN'):
             if operator=='/':
                 data_dict[i][new_feature_name]=round((1.0*data_dict[i][feature_1])/data_dict[i][feature_2],4)
-                #print data_dict[i][new_feature_name]
             
         else:
             data_dict[i][new_feature_name]='NaN'
-    return new_data_dict
-        
+    return new_data_dict, features_list
+
+def print_rank(Scores_features,title,with_value=False):
+    print title
+    j=1
+    for k, v in sorted(Scores_features.items(), key=itemgetter(1), reverse=True):
+        if with_value:
+            print '({}) {}: {}'.format(j,k,v)
+        else:
+            print '({}) {}'.format(j,k)
+        j+=1
+
+
+def tester(clf, feature_list):
+    DATASET_PICKLE_FILENAME = "my_dataset.pkl"
+    with open(DATASET_PICKLE_FILENAME, "r") as dataset_infile:
+        dataset = pickle.load(dataset_infile)
+    
+    test_classifier(clf, dataset, feature_list)
+
+from time import time
+
+def classifier_test(clf, feature_list,label):
+    print '\n%%%%%%%%%%%%%%%%% '+label+' %%%%%%%%%%%%%%%%%'
+    t0 = time()
+    tester(clf, feature_list)
+    print 'computation time: {} secs'.format(round(time()-t0,6))
+    print '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n'
+    
