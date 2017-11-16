@@ -2,6 +2,7 @@
 
 import sys
 import pickle
+import numpy
 sys.path.append("../tools/")
 
 from feature_format import featureFormat, targetFeatureSplit
@@ -38,10 +39,10 @@ with open("final_project_dataset.pkl", "r") as data_file:
 ######### Feature selection
 print '\n########### STEP 1: Feature selection ############\n'
     ## Selected features
-features_list = ['poi','exercised_stock_options','total_stock_value', 'total_payments','from_poi_to_this_person','shared_receipt_with_poi','from_this_person_to_poi']
+features_list = ['poi','total_payments','total_stock_value','exercised_stock_options', 'from_poi_to_this_person','shared_receipt_with_poi','from_this_person_to_poi']
     ## Removed features
 removed_features_list=['loan_advances','deferred_income','long_term_incentive','deferral_payments','restricted_stock_deferred','director_fees']
-#features_list+=removed_features_list
+features_list+=removed_features_list
 
                         
     ## How many persons:   
@@ -138,11 +139,19 @@ scaler = MinMaxScaler()
 features=scaler.fit_transform(features)
 
     ## Select best features
-#k=2
-selector= SelectKBest(chi2, k='all')
+k='all'
+
+selector= SelectKBest(chi2, k=k)
 new_features=selector.fit_transform(features, labels)
-#if k!='all':
-#    features=new_features
+if k!='all':
+    new_features_list=['poi']
+    for i in selector.get_support(indices=True):
+        new_features_list.append(features_list[i+1])
+    features_list=new_features_list
+    data = featureFormat(my_dataset, features_list, sort_keys = True)
+    labels, features = targetFeatureSplit(data)
+    
+    
 Scores_features={}
 j=0
 for i in features_list[1::]:
@@ -171,12 +180,11 @@ features_train, features_test, labels_train, labels_test = \
 
     ##KNeighborsClassifier
 clf=KNeighborsClassifier()
-classifier_test(clf, features_list,'KNeighborsClassifier (default):')
+classifier_test(clf, my_dataset, features_list,'KNeighborsClassifier (default):')
 
     ##Decision Tree
 clf=DecisionTreeClassifier(random_state=5)
-dump_classifier_and_data(clf, my_dataset, features_list)
-classifier_test(clf, features_list,'Decision tree (default):')
+classifier_test(clf, my_dataset, features_list,'Decision tree (default):')
 
 ######### Tune the algorithm
 
@@ -186,7 +194,7 @@ print '\n\n########### STEP 7: Tune (with grid search) ############\n'
 
     ### set the parameters for decision tree classifer
 criterion=['gini','entropy']
-max_depth=np.arange(1,100,1)
+max_depth=np.arange(1,100,10)
 min_samples_split=np.arange(2,20,1)
 random_state=[5]
 params_decision_tree = dict(criterion=criterion,max_depth=max_depth,min_samples_split=min_samples_split,random_state=random_state)
@@ -201,7 +209,7 @@ score_k_best = estimator.cv_results_
     ### get the best estimator
 clf = estimator.best_estimator_
     ### Test the best estimator
-classifier_test(clf, features_list,'Grid search (Decision Tree):')
+classifier_test(clf, my_dataset,features_list,'Grid search (Decision Tree):')
 
 #### Tune Decision Tree
 
@@ -221,7 +229,7 @@ score_k_best = estimator.cv_results_
     ### get the best estimator
 clf = estimator.best_estimator_
     ### Test the best estimator
-classifier_test(clf, features_list,'Grid search (K best):')
+classifier_test(clf, my_dataset,features_list,'Grid search (K best):')
 
 
 ######### Dump results

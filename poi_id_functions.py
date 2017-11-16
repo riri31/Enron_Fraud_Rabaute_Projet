@@ -218,19 +218,16 @@ def print_rank(Scores_features,title,with_value=False):
         j+=1
 
 
-def tester(clf, feature_list):
-    DATASET_PICKLE_FILENAME = "my_dataset.pkl"
-    with open(DATASET_PICKLE_FILENAME, "r") as dataset_infile:
-        dataset = pickle.load(dataset_infile)
+def tester(clf,my_dataset, feature_list):
     
-    test_classifier(clf, dataset, feature_list)
+    test_classifier(clf, my_dataset, feature_list)
 
 from time import time
 
-def classifier_test(clf, feature_list,label):
+def classifier_test(clf, my_dataset, feature_list,label):
     print '\n%%%%%%%%%%%%%%%%% '+label+' %%%%%%%%%%%%%%%%%'
     t0 = time()
-    tester(clf, feature_list)
+    tester(clf,my_dataset,feature_list)
     print 'computation time: {} secs'.format(round(time()-t0,6))
     print '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n'
     
