@@ -1,5 +1,6 @@
 import pickle
 from operator import itemgetter
+from tester import test_classifier
 
 ## function : data cleaning
 ## content: remove item from dictionary

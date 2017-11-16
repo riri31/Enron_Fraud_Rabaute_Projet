@@ -2,12 +2,12 @@
 
 import sys
 import pickle
-import numpy
+import numpy as np
 sys.path.append("../tools/")
 
 from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
-import poi_id_functions
+from poi_id_functions import data_cleaning, Draw, Draw_bar, feature_NaN, feature_NaN_poi, feature_analysis, Remove_NaN_Person, Count_NaN, List_NaN, Add_ratio, print_rank, tester, classifier_test
 
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
@@ -15,7 +15,7 @@ from sklearn.neighbors import KNeighborsClassifier
 
 from sklearn.pipeline import make_pipeline
 from sklearn.decomposition import PCA
-from sklearn.svm import SVC
+from sklearn.svm import SVC, LinearSVC
 
 from sklearn.preprocessing import MinMaxScaler
 
@@ -26,6 +26,7 @@ from sklearn.cross_validation import train_test_split
 
 from sklearn import svm, datasets
 from sklearn.model_selection import GridSearchCV
+
 
 ############ Code generate verbose print or not ############
 verbose = False
@@ -42,7 +43,7 @@ print '\n########### STEP 1: Feature selection ############\n'
 features_list = ['poi','total_payments','total_stock_value','exercised_stock_options', 'from_poi_to_this_person','shared_receipt_with_poi','from_this_person_to_poi']
     ## Removed features
 removed_features_list=['loan_advances','deferred_income','long_term_incentive','deferral_payments','restricted_stock_deferred','director_fees']
-features_list+=removed_features_list
+#features_list+=removed_features_list
 
                         
     ## How many persons:   
@@ -186,15 +187,22 @@ classifier_test(clf, my_dataset, features_list,'KNeighborsClassifier (default):'
 clf=DecisionTreeClassifier(random_state=5)
 classifier_test(clf, my_dataset, features_list,'Decision tree (default):')
 
+    ##Decision Tree
+clf=LinearSVC()
+classifier_test(clf, my_dataset, features_list,'Linear SVC (default):')
+
+
 ######### Tune the algorithm
 
 
 #### Tune Decision Tree
 print '\n\n########### STEP 7: Tune (with grid search) ############\n'
 
+                                    
+scoring='precision'
     ### set the parameters for decision tree classifer
 criterion=['gini','entropy']
-max_depth=np.arange(1,100,10)
+max_depth=np.arange(1,100,5)
 min_samples_split=np.arange(2,20,1)
 random_state=[5]
 params_decision_tree = dict(criterion=criterion,max_depth=max_depth,min_samples_split=min_samples_split,random_state=random_state)
@@ -202,7 +210,7 @@ params_decision_tree = dict(criterion=criterion,max_depth=max_depth,min_samples_
     ### set the classifier
 classifier=DecisionTreeClassifier()
     ### fit and search
-estimator = GridSearchCV(classifier, params_decision_tree, scoring='f1', cv=None)
+estimator = GridSearchCV(classifier, params_decision_tree, scoring=scoring, cv=None)
 estimator.fit(features_train, labels_train)
     ### extract scores
 score_k_best = estimator.cv_results_
@@ -222,7 +230,7 @@ params_k_best = dict(metric=metrics,weights=weights,n_neighbors=numNeighbors)
     ### set the classifier
 classifier=KNeighborsClassifier()
     ### fit and search
-estimator = GridSearchCV(classifier, params_k_best, scoring='f1', cv=None)
+estimator = GridSearchCV(classifier, params_k_best, scoring=scoring, cv=None)
 estimator.fit(features_train, labels_train)
     ### extract scores
 score_k_best = estimator.cv_results_
