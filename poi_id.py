@@ -194,31 +194,13 @@ classifier_test(clf, my_dataset, features_list,'Linear SVC (default):')
 ######### Tune the algorithm
 
 
-#### Tune Decision Tree
+
 print '\n\n########### STEP 7: Tune (with grid search) ############\n'
 
                                     
-scoring='precision'
-    ### set the parameters for decision tree classifer
-criterion=['gini','entropy']
-max_depth=np.arange(1,100,5)
-min_samples_split=np.arange(2,20,1)
-random_state=[5]
-params_decision_tree = dict(criterion=criterion,max_depth=max_depth,min_samples_split=min_samples_split,random_state=random_state)
+scoring='f1'
 
-    ### set the classifier
-classifier=DecisionTreeClassifier()
-    ### fit and search
-estimator = GridSearchCV(classifier, params_decision_tree, scoring=scoring, cv=None)
-estimator.fit(features_train, labels_train)
-    ### extract scores
-score_k_best = estimator.cv_results_
-    ### get the best estimator
-clf = estimator.best_estimator_
-    ### Test the best estimator
-classifier_test(clf, my_dataset,features_list,'Grid search (Decision Tree):')
-
-#### Tune Decision Tree
+#### Tune Kbest neigbours
 
     ### set the parameters for kbest classifer
 metrics= ['minkowski','euclidean','manhattan'] 
@@ -237,6 +219,26 @@ score_k_best = estimator.cv_results_
 clf = estimator.best_estimator_
     ### Test the best estimator
 classifier_test(clf, my_dataset,features_list,'Grid search (K best):')
+
+#### Tune Decision Tree
+    ### set the parameters for decision tree classifer
+criterion=['gini','entropy']
+max_depth=np.arange(1,100,5)
+min_samples_split=np.arange(2,20,1)
+random_state=[5]
+params_decision_tree = dict(criterion=criterion,max_depth=max_depth,min_samples_split=min_samples_split,random_state=random_state)
+
+    ### set the classifier
+classifier=DecisionTreeClassifier()
+    ### fit and search
+estimator = GridSearchCV(classifier, params_decision_tree, scoring=scoring, cv=None)
+estimator.fit(features_train, labels_train)
+    ### extract scores
+score_k_best = estimator.cv_results_
+    ### get the best estimator
+clf = estimator.best_estimator_
+    ### Test the best estimator
+classifier_test(clf, my_dataset,features_list,'Grid search (Decision Tree):')
 
 
 ######### Dump results
